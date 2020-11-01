@@ -18,26 +18,32 @@ class CPU:
     def ram_write(self, value, addr):
         self.ram[value] = addr
 
-    def load(self):
+    def load(self, program):
         """Load a program into memory."""
 
         address = 0
+        with open(program) as file:
+            for line in file:
+                split_line = line.split("#")[0]
+                command = split_line.strip()
 
-        # For now, we've just hardcoded a program:
+                if command == '':
+                    continue
 
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
+                instruction = int(command, 2)
+                self.ram_write(address, instruction)
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+                address += 1
+
+                # print(sys.argv)
+
+                if len(sys.argv) != 2:
+                    print("Wrong number of arguments, please pass file name")
+                    sys.exit(1)
+
+    """     for instruction in program:
+            self.ram[addr] = instruction
+            address += 1 """
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -45,6 +51,8 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         # elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -74,6 +82,7 @@ class CPU:
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+        MUL = 0b10100010
 
         isRunning = True
         while isRunning:
@@ -93,6 +102,10 @@ class CPU:
             elif cmd == PRN:
                 print(self.reg[operand_a])
                 self.pc += 2
+
+            elif cmd == MUL:
+                self.alu("MUL", operand_a, operand_b)
+                self.pc += 3
 
             else:
                 print(f"bad input: {cmd}")
