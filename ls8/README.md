@@ -178,7 +178,7 @@ import sys
 print(sys.argv)
 ```
 
-Note that `sys.argv[0]` is the name of the running program itself.
+Note that `sys.argv[0]` is the name of the running program itself. 
 
 If the user runs `python3 ls8.py examples/mult.ls8`, the values in `sys.argv`
 will be:
